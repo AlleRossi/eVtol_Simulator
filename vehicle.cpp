@@ -19,6 +19,8 @@ bool Vehicle::checkForFault() {	//return a bool indication if a fault has occurr
 void Vehicle::updateBatteryLevel(double batteryUsed) {	//update battery level after flight
 	batteryLevel -= batteryUsed;
 	if (batteryLevel < 0) batteryLevel = 0;
+	//debug
+	//std::cout << batteryLevel << " ";
 }
 
 //change charging status to meet current vehicle conditions
@@ -34,7 +36,7 @@ void Vehicle::chargeComplete() {
 //Getters
 std::string Vehicle::getCompanyName() const { return companyName; }
 double Vehicle::getCruiseSpeed() const { return cruiseSpeed; }
-double Vehicle::getBatteryLevel() const { return batteryCapacity; }
+double Vehicle::getBatteryLevel() const { return batteryLevel; }
 int Vehicle::getPassengerCount() const { return passengerCount; }
 double Vehicle::getChargeTime() const { return chargeTime; }
 double Vehicle::getEnergyUse() const { return energyUse; }

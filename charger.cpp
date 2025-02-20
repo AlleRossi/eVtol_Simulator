@@ -19,7 +19,7 @@ void Charger::update(double step, double currentTime) {
         isAvailable = true;
         currentVehicle->setChargingStatus(0);
         currentVehicle->chargeComplete();
-        std::cout << "vehicle is now done charging " << currentVehicle->getCompanyName()<< " at time" << currentTime << "\n";
+        std::cout << "vehicle is now done charging " << currentVehicle->getCompanyName()<< " at time " << currentTime << "\n";
         currentVehicle = nullptr;
         chargeCompletionTime = 0;
     }

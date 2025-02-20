@@ -61,6 +61,8 @@ public:
 			//flight phase
 			for (auto& vehicle : vehicles) {
 				if (vehicle->getBatteryLevel() > 0) {
+					//debug
+					//cout << vehicle->getBatteryLevel() << " ";
 					double distance = vehicle->fly(timeStep);
 					totalFlightTime[vehicle->getCompanyName()] += timeStep;			//update flight time per company
 					totalDistanceTraveled[vehicle->getCompanyName()] += distance;	//update flight distance epr company
@@ -77,6 +79,7 @@ public:
 						debugFaultCounter++;
 					}
 					vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
+					//cout << distance * vehicle->getEnergyUse() << " ";
 				}else {	
 					if (!vehicle->getIsCharging()) {
 						cout << "vehicle is now in charging queue " << vehicle->getCompanyName() << " at time " << TimeElapsed << "\n";
@@ -86,7 +89,6 @@ public:
 					}
 				}
 			}
-
 			//charging phase
 			for (auto& charger : chargers) {
 				if (charger.isFree() && !chargeQueue.empty()) {
@@ -101,9 +103,9 @@ public:
 			debugCounter += 1;
 		}
 		//debug
-		/*for (auto& vehicle : vehicles) {
+		for (auto& vehicle : vehicles) {
 			cout << vehicle->getCompanyName() << " \n";
-		}*/
+		}
 		std::cout << "number of times the loop was executed: " << debugCounter << "\n";
 		std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
 	}
