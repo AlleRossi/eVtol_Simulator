@@ -16,7 +16,7 @@ public:
 
     void startCharging(Vehicle* vehicle);
 
-    void update(double step);
+    void update(double step, double currentTime);
 
     double getTotalChargingTime();
 };

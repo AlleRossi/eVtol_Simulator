@@ -33,6 +33,9 @@ public:
     //change charging status to meet current vehicle conditions
     virtual void setChargingStatus(bool status);
 
+    //charge of vehicle completed
+    virtual void chargeComplete();
+
     //Getters
     std::string getCompanyName() const;
     double getCruiseSpeed() const;

@@ -11,6 +11,7 @@
 #include <cmath>
 #include "eVtol_Factory.h"
 #include "charger.h"
+const double EPSILON = 1e-9;
 
 using namespace std;
 
@@ -55,7 +56,8 @@ public:
 		int debugFaultCounter = 0;
 
 		while (TimeElapsed <= simulationTime) {
-
+			//debug
+			//std::cout << "time elapsed value: " << TimeElapsed  << "  floored value of time elapsed" << static_cast<int>(TimeElapsed) << "\n";
 			//flight phase
 			for (auto& vehicle : vehicles) {
 				if (vehicle->getBatteryLevel() > 0) {
@@ -67,38 +69,41 @@ public:
 					totalPassengerMiles[vehicle->getCompanyName()] += distance * vehicle->getPassengerCount();
 
 					//check if a fault has occurred every hour
-					if (TimeElapsed == std::floor(TimeElapsed)) {   //by checking if the time elapsed is equal to itself
-						if (vehicle->checkForFault()) {				//floored to the closest whole number, we make sure it checks
-							totalFaults[vehicle->getCompanyName()] += 1;	//for fault every hour and not every time step
+					if ((std::abs(TimeElapsed - std::floor(TimeElapsed)) < EPSILON)
+						&& TimeElapsed > 0) {											//by checking if the time elapsed is equal to itself
+						if (vehicle->checkForFault()) {									//floored to the closest whole number, we make sure it checks
+							totalFaults[vehicle->getCompanyName()] += 1;				//for fault every hour and not every time step
 						}
 						debugFaultCounter++;
 					}
 					vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
-				}
-				else {	
+				}else {	
 					if (!vehicle->getIsCharging()) {
+						cout << "vehicle is now in charging queue " << vehicle->getCompanyName() << " at time " << TimeElapsed << "\n";
 						//add the current vehicle to the charging queue
 						vehicle->setChargingStatus(1);
 						chargeQueue.push(vehicle.get());
 					}
 				}
+			}
 
-				//charging phase
-				for (auto& charger : chargers) {
-					if (charger.isFree() && !chargeQueue.empty()) {
-						Vehicle* EVTOL = chargeQueue.front();
-						chargeQueue.pop();
-						charger.startCharging(EVTOL);
-					}
-					charger.update(timeStep);
+			//charging phase
+			for (auto& charger : chargers) {
+				if (charger.isFree() && !chargeQueue.empty()) {
+					Vehicle* EVTOL = chargeQueue.front();
+					chargeQueue.pop();
+					charger.startCharging(EVTOL);
 				}
-
+				else charger.update(timeStep, TimeElapsed);
 			}
 
 			TimeElapsed += timeStep;
 			debugCounter += 1;
 		}
-
+		//debug
+		/*for (auto& vehicle : vehicles) {
+			cout << vehicle->getCompanyName() << " \n";
+		}*/
 		std::cout << "number of times the loop was executed: " << debugCounter << "\n";
 		std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
 	}
