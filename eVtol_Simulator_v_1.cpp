@@ -42,16 +42,52 @@ public:
 	void run() {
 		double TimeElapsed = 0.0;
 		int debugCounter = 0;
+		int debugFaultCounter = 0;
 
-		while (TimeElapsed < simulationTime) {
+		while (TimeElapsed <= simulationTime) {
 
+			//flight phase
+			for (auto& vehicle : vehicles) {
+				if (vehicle->getBatteryLevel() > 0) {
+					double distance = vehicle->fly(timeStep);
+					totalFlightTime[vehicle->getCompanyName()] += timeStep;			//update flight time per company
+					totalDistanceTraveled[vehicle->getCompanyName()] += distance;	//update flight distance epr company
 
+					//compute passenger miles
+					totalPassengerMiles[vehicle->getCompanyName()] += distance * vehicle->getPassengerCount();
+
+					//check if a fault has occurred every hour
+					if (TimeElapsed == std::floor(TimeElapsed)) {   //by checking if the time elapsed is equal to itself
+						if (vehicle->checkForFault()) {				//floored to the closest whole number, we make sure it checks
+							totalFaults[vehicle->getCompanyName()] += 1;	//for fault every hour and not every time step
+						}
+						debugFaultCounter++;
+					}
+					vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
+				}
+				else {	
+					//add the current vehicle to the charging queue
+					chargeQueue.push(vehicle.get());
+				}
+
+				//charging phase
+				for (auto& charger : chargers) {
+					if (charger.isFree() && !chargeQueue.empty()) {
+						Vehicle* EVTOL = chargeQueue.front();
+						chargeQueue.pop();
+						charger.startCharging(EVTOL);
+					}
+					charger.update(timeStep);
+				}
+
+			}
 
 			TimeElapsed += timeStep;
 			debugCounter += 1;
 		}
 
 		std::cout << "number of times the loop was executed: " << debugCounter << "\n";
+		std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
 	}
 
 };

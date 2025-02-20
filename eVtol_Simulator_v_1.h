@@ -10,6 +10,7 @@
 #include <queue>
 #include <map>
 #include <chrono>
+#include <cmath>
 #include "eVtol_Factory.h"
 #include "charger.h"
 

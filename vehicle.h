@@ -23,11 +23,14 @@ public:
 
     virtual ~Vehicle() = default;  // enables default destructor for base class
 
-    // Simulate flying for one hour and return distance traveled
-    virtual double fly();
+    // Simulate flying for one time step and return distance traveled
+    virtual double fly(double step);
 
     // Check if a fault occurs during flight
     bool checkForFault();
+
+    //update the battery level 
+    virtual void updateBatteryLevel(double batteryUsed);
 
     // Getters
     std::string getCompanyName() const;
@@ -35,6 +38,7 @@ public:
     double getBatteryLevel() const;
     int getPassengerCount() const;
     double getChargeTime() const;
+    double getEnergyUse() const;
 };
 
 #endif

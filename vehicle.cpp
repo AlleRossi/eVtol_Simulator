@@ -18,13 +18,18 @@ public:
 
 	virtual ~Vehicle() = default;	//sets default destructor for Vehicle OBJ
 
-	virtual double fly() {			//returns numbers of miles flown on a single charge
-		return (batteryCapacity / energyUse) * cruiseSpeed;
+	virtual double fly(double step) {			//returns numbers of miles flown in a time delta
+		return step * cruiseSpeed;
 	};
 
 	virtual bool checkForFault() {	//return a bool indication if a fault has occurred while flying
 		return ((rand() % 100) < (faultProbability * 100));
 	};
+
+	virtual void updateBatteryLevel(double batteryUsed) {	//update battery level after flight
+		batteryCapacity -= batteryUsed;
+		if (batteryCapacity < 0) batteryCapacity = 0;
+	}
 
 	//Getters
 	std::string getCompanyName() const { return companyName; }
@@ -32,4 +37,5 @@ public:
 	double getBatteryLevel() const { return batteryCapacity; }
 	int getPassengerCount() const { return passengerCount; }
 	double getChargeTime() const { return chargeTime; }
+	double getEnergyUse() const { return energyUse; }
 };
