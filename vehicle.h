@@ -21,7 +21,7 @@ public:
     Vehicle(std::string name, double speed, double capacity, double chargeTime,
         double energyUse, int passengers, double faultProb);
 
-    virtual ~Vehicle() = default;
+    virtual ~Vehicle() = default;  // enables default destructor for base class
 
     // Simulate flying for one hour and return distance traveled
     virtual double fly();
@@ -34,6 +34,7 @@ public:
     double getCruiseSpeed() const;
     double getBatteryLevel() const;
     int getPassengerCount() const;
+    double getChargeTime() const;
 };
 
 #endif

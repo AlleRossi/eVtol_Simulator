@@ -31,4 +31,5 @@ public:
 	double getCruiseSpeed() const { return cruiseSpeed; }
 	double getBatteryLevel() const { return batteryCapacity; }
 	int getPassengerCount() const { return passengerCount; }
+	double getChargeTime() const { return chargeTime; }
 };
