@@ -2,13 +2,6 @@
 //
 
 #include "eVtol_Simulator_v_1.h"
-#include <random>
-#include <memory>
-#include <vector>
-#include <iostream>
-#include <queue>
-#include <map>
-#include <chrono>
 
 using namespace std;
 
