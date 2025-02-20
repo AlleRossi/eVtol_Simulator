@@ -1,6 +1,4 @@
-#ifndef EVTOL_VEHICLES_H
-#define EVTOL_VEHICLES_H
-
+#pragma once
 #include "Vehicle.h"
 
 class AlphaEVTOL : public Vehicle {
@@ -28,4 +26,3 @@ public:
     EchoEVTOL() : Vehicle("Echo", 30, 150, 0.3, 5.8, 2, 0.61) {}
 };
 
-#endif

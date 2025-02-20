@@ -1,7 +1,16 @@
 ﻿// eVtol_Simulator_v_1.cpp: definisce il punto di ingresso dell'applicazione.
 //
 
-#include "eVtol_Simulator_v_1.h"
+#include <iostream>
+#include <random>
+#include <memory>
+#include <vector>
+#include <queue>
+#include <map>
+#include <chrono>
+#include <cmath>
+#include "eVtol_Factory.h"
+#include "charger.h"
 
 using namespace std;
 
@@ -11,7 +20,8 @@ private:
 	std::vector<std::unique_ptr<Vehicle>> vehicles;		//vector of smart pointers that point to Vehicle OBJs
 	std::vector<Charger> chargers;						//vector of Chargers
 	std::queue<Vehicle*> chargeQueue;					//queue for the vehicles that need charging
-	std::vector<std::string> companyNames;				//names of the five EVTOL manufacturers of the simulation
+	std::vector<std::string> companyNames				//names of the five EVTOL manufacturers of the simulation
+		= { "Alpha", "Bravo", "Charlie", "Delta", "Echo" };				
 
 	double simulationTime = 3.0;							//3 hours
 	double timeStep = 0.01;								//time step for each iteration of the simulation loop
@@ -29,7 +39,7 @@ public:
 
 		//create #numVehicles EVTOLS at random 
 		for (int i = 0; i < numVehicles; i++) {
-			std::string company = companyNames[rand() % (0 - companyNames.size())];	//a company name is selected at random from the list of possible companies
+			std::string company = companyNames[rand() % companyNames.size()];	//a company name is selected at random from the list of possible companies
 			vehicles.push_back(eVtol_Factory::createVehicle(company));				//add to vehicles an instance of the selected company's EVTOL
 		}
 
@@ -66,8 +76,11 @@ public:
 					vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
 				}
 				else {	
-					//add the current vehicle to the charging queue
-					chargeQueue.push(vehicle.get());
+					if (!vehicle->getIsCharging()) {
+						//add the current vehicle to the charging queue
+						vehicle->setChargingStatus(1);
+						chargeQueue.push(vehicle.get());
+					}
 				}
 
 				//charging phase
@@ -94,6 +107,8 @@ public:
 
 int main()
 {
-	cout << "Hello CMake." << endl;
+	auto simulation = Simulation(20, 3);
+	simulation.run();
+
 	return 0;
 }

@@ -12,7 +12,7 @@ endif()
 project ("eVtol_Simulator_v_1")
 
 # Aggiungere l'origine all'eseguibile di questo progetto.
-add_executable (eVtol_Simulator_v_1 "eVtol_Simulator_v_1.cpp" "eVtol_Simulator_v_1.h" "eVtols_vehicles.h" "eVtol_Factory.cpp" "eVtol_Factory.h" "charger.cpp" "charger.h")
+add_executable (eVtol_Simulator_v_1 "eVtol_Simulator_v_1.cpp"  "eVtols_vehicles.h" "eVtol_Factory.cpp" "eVtol_Factory.h" "charger.cpp" "charger.h"   "vehicle.h" "vehicle.cpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET eVtol_Simulator_v_1 PROPERTY CXX_STANDARD 20)
