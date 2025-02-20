@@ -7,13 +7,16 @@ private:
     bool isAvailable;
     double chargeCompletionTime;
     Vehicle* currentVehicle;
+    double totalChargingTime;
 
 public:
     Charger();
 
     bool isFree() const;
 
-    void startCharging(Vehicle* vehicle, double currentTime);
+    void startCharging(Vehicle* vehicle);
 
-    void update(double currentTime);
+    void update(double step);
+
+    double getTotalChargingTime();
 };
