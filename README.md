@@ -1,16 +1,18 @@
 # eVtol_Simulator
 
-1.The idea is to have a base class called vehicle that defines all of the common characteristics among the different EVTOLs and then 
-to have a series of subclasses that statically define the different qualities of the aircrafts developed by the five companies.
+1.The idea is to have a base class called Vehicle, which defines all the common characteristics among different eVTOLs. 
+Then, a series of subclasses statically define the unique attributes of the aircraft developed by the five manufacturing companies.
 
-2.Later created an EVTOL factory class to dynamically create the instances of the vehicles that will be tested in the simulator, it's best to proceed in this way because of the unknown
-number of vehicles of each kind that have to be deployed each times the code is run.
+2.Later, an eVTOL factory class was created to dynamically generate instances of the vehicles that will be tested in the simulator. 
+This approach is preferable because the number of vehicles of each type is unknown and varies each time the code is executed.
 
-3.Next a Chargers class has to be implemented, each charger makes itself available to the first vehicle of a charging queue hence it needs attributes to determine availability and remaining charging time.
-A factory class to create the Chargers isn't necessary, all chargers are exactly the same and can be generated with a simple for loop.
+3.Next, a Charger class needs to be implemented. Each charger becomes available to the first vehicle in the charging queue, so it requires attributes to track availability and remaining charging time.
+A factory class for chargers is unnecessary since all chargers are identical and can be created using a simple loop.
 
-4.Lastly creating a simulator class with a loop that emulates the passing of time at an accelerated rate, here are implemented the functions to record the flight info, 
-a handler function for the charging queues and fault events.
+4.Finally, a Simulator class must be created with a loop that emulates the passage of time at an accelerated rate. 
+This class implements functions to record flight data, manage charging queues, and handle fault events.
 
-Assumption: the average charging time of each vehicle includes the time that is spent in queue waiting for a charger to be free, as the vehicle is in the charging cycle.
-			this means that the charging times are largely dependent on what kind of other vehicles are part of the fleet as slower-charging vehicles increase charging time for all. 
+Assumption: The average charging time for each vehicle includes the time spent in the queue waiting for a charger to become available, as this is considered part of the charging cycle. 
+This means that overall charging times are highly dependent on the composition of the fleet—slower-charging vehicles that increase the waiting time for all others.
+
+
