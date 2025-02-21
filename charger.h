@@ -19,4 +19,7 @@ public:
     void update(double step, double currentTime);
 
     double getTotalChargingTime();
+
+    //getter for the current vehicle
+    Vehicle* getCurrentVehicle();
 };

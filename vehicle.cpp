@@ -5,7 +5,7 @@ Vehicle::Vehicle(std::string name, double speed, double capacity, double chargeT
 	double energyUsage, int passasngers, double faultProb)
 	: companyName(name), cruiseSpeed(speed), batteryCapacity(capacity), chargeTime(chargeTime),
 	energyUse(energyUsage), passengerCount(passasngers), faultProbability(faultProb),
-	batteryLevel(capacity), isCharging(false) {}
+	batteryLevel(capacity), isCharging(false), isIdle(false), startIdleTime(0.0) {}
 
 
 double Vehicle::fly(double step) {			//returns numbers of miles flown in a time delta
@@ -33,6 +33,21 @@ void Vehicle::chargeComplete() {
 	batteryLevel = batteryCapacity;
 }
 
+//change idle status
+void Vehicle::setIdleStatus(bool status) {
+	isIdle = status;
+}
+
+//update startIdleTime
+void Vehicle::updateStartIdleTime(double currentTime) {
+	startIdleTime = currentTime;
+}
+
+//reset startIdleTime
+void Vehicle::resetStartIdleTime() {
+	startIdleTime = 0;
+}
+
 //Getters
 std::string Vehicle::getCompanyName() const { return companyName; }
 double Vehicle::getCruiseSpeed() const { return cruiseSpeed; }
@@ -41,4 +56,6 @@ int Vehicle::getPassengerCount() const { return passengerCount; }
 double Vehicle::getChargeTime() const { return chargeTime; }
 double Vehicle::getEnergyUse() const { return energyUse; }
 bool Vehicle::getIsCharging() { return isCharging; }
+bool Vehicle::getIsIdle() { return isIdle; }
+double Vehicle::getStartIdleTime() { return startIdleTime; }
 
