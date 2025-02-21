@@ -5,7 +5,7 @@ Vehicle::Vehicle(std::string name, double speed, double capacity, double chargeT
 	double energyUsage, int passasngers, double faultProb)
 	: companyName(name), cruiseSpeed(speed), batteryCapacity(capacity), chargeTime(chargeTime),
 	energyUse(energyUsage), passengerCount(passasngers), faultProbability(faultProb),
-	batteryLevel(capacity), isCharging(false), isIdle(false), startIdleTime(0.0) {}
+	batteryLevel(capacity), isCharging(false), isIdle(true), startIdleTime(0.0) {}
 
 
 double Vehicle::fly(double step) {			//returns numbers of miles flown in a time delta
