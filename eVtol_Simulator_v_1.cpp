@@ -60,11 +60,11 @@ public:
 	}
 
 	void run() {
-		double TimeElapsed = 0.0;
+		double TimeElapsed = timeStep;
 		int debugCounter = 0;
 		int debugFaultCounter = 0;
 
-		while (TimeElapsed <= simulationTime) {
+		while (TimeElapsed <= simulationTime) {			//Emulates passing of time
 			//debug
 			//std::cout << "time elapsed value: " << TimeElapsed  << "  floored value of time elapsed" << static_cast<int>(TimeElapsed) << "\n";
 			// 
@@ -75,7 +75,10 @@ public:
 					//cout << vehicle->getBatteryLevel() << " ";
 					if (vehicle->getIsIdle()) {							//check if the aircraft was already in flight or not, if not,last charge cycle duration is recorded
 						vehicle->setIdleStatus(false);
-						totalIdleTimePerCompany[vehicle->getCompanyName()] += (TimeElapsed - vehicle->getStartIdleTime());	//last charge cycle duration is recorded
+						double TimeDelta = TimeElapsed - vehicle->getStartIdleTime();		//when we get in this if statement at the very beginning of the simulation we end up with a negative TimeDelta, which we don't want to include in our data
+						if (TimeDelta > 0) {
+							totalIdleTimePerCompany[vehicle->getCompanyName()] += (TimeElapsed - vehicle->getStartIdleTime());	//last charge cycle duration is recorded
+						}
 						vehicle->resetStartIdleTime();
 						numberOfFlightsPerCompany[vehicle->getCompanyName()]++;				//since it's the start of a new flight, the number of flights is increased
 					}
@@ -123,11 +126,12 @@ public:
 			debugCounter += 1;
 		}
 		//debug
-		for (auto& vehicle : vehicles) {
+		/*for (auto& vehicle : vehicles) {
 			cout << vehicle->getCompanyName() << " \n";
-		}
-		std::cout << "number of times the loop was executed: " << debugCounter << "\n";
-		std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
+		}*/
+		//debug
+		//std::cout << "number of times the loop was executed: " << debugCounter << "\n";
+		//std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
 		
 
 		//check if there was any charging  vehicle at the time the simulation ends, if so, update the total idle times
