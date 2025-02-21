@@ -15,4 +15,21 @@ This class implements functions to record flight data, manage charging queues, a
 Assumption: The average charging time for each vehicle includes the time spent in the queue waiting for a charger to become available, as this is considered part of the charging cycle. 
 This means that overall charging times are highly dependent on the composition of the fleet—slower-charging vehicles that increase the waiting time for all others.
 
+The following is a simple UML diagram made to give a general understanding of the project structure.
+Only the main variables and methods of the Simulation class are rapresented
 
+![Alt text](images/Simulator_UML.png)
+
+
+The following are two examples of the data generated during the simulation process:
+
+![Alt text](images/recorded_simulator_data_1.png)
+
+![Alt text](images/recorded_simulator_data_2.png)
+
+Observations:
+  1.Average charge times are calculated based on the above stated assumptiuon, hence the average charging time variates a lot from simulation to simulation based on the amout of time spent in queue for an available charger.
+  2.Some eVTOL companies display average ranges and flight times that perfectly align with vehicle expectations. This happens because, at the time the simulation ends, all their vehicles are either on the ground, in queue, or charging.
+  3.Some eVTOLS companies might display avarage ranges and flight times that look odd at first glance, this is caused by the fact that it is possible for the simulation to end while some of the company's vehicles are still flying.
+    This causes the the ratio (miles flown/flights) to go below expectations as the number of flights has increased while the last flight's miles where under the maximum range.
+    Same concept applies to average flight time (total time flown/number of flights), lowering the average flight time.
