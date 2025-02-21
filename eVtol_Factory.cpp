@@ -1,7 +1,7 @@
 #include "eVtol_Factory.h"
-
-std::unique_ptr<Vehicle> eVtol_Factory::createVehicle(const std::string& company) {
-	if (company == "Alpha") {
+//Factory class that has only one method to create instances of EVTOLs 
+std::unique_ptr<Vehicle> eVtol_Factory::createVehicle(const std::string& company) {		//takes a single company name to create corresponding EVTOL obj, in case of wrong company name, you get undefined behavior
+	if (company == "Alpha") {								//used if-else structure because strings are not directly supported in Switch-case structures in C++
 		return std::make_unique<AlphaEVTOL>();
 	}
 	else if (company == "Bravo") {

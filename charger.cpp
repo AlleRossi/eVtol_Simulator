@@ -30,6 +30,6 @@ double Charger::getTotalChargingTime() {       //returns the total time the char
 }
 
 //getter for the current vehicle
-Vehicle* Charger::getCurrentVehicle() {
+Vehicle* Charger::getCurrentVehicle() {         //returns the pointer to the current vehicle being charged
     return currentVehicle;
 }

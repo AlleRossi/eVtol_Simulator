@@ -220,12 +220,3 @@ int main()
 
 	return 0;
 }
-/*	
-	add to simulation a map to count the total flights per company and charge sessions
-
-	get the average dividing the total flight time by the number of flights
-	get the average dividing the total charge time by the number of flights - 1
-
-	create a function to log the relevant statistics
-
-*/

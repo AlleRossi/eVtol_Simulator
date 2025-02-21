@@ -1,7 +1,8 @@
 #pragma once
 #include "Vehicle.h"
 
-class AlphaEVTOL : public Vehicle {
+//creation of all the EVTOL classes based on the Vehicle class, each with their unique characteristics
+class AlphaEVTOL : public Vehicle {                                         
 public:
     AlphaEVTOL() : Vehicle("Alpha", 120, 320, 0.6, 1.6, 4, 0.25) {}
 };
