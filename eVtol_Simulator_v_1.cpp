@@ -45,95 +45,99 @@ public:
 																																				//	SimulationTime is how long will the simulation be, example: 1.0 equals to 1 hour
 		srand(time(0));																				//set the seed for the random number generation
 
-		//create #numVehicles EVTOLS at random 
-		for (int i = 0; i < numVehicles; i++) {
-			std::string company = companyNames[rand() % companyNames.size()];		//a company name is selected at random from the list of possible companies
-			vehicles.push_back(eVtol_Factory::createVehicle(company));				//add to vehicles an instance of the selected company's EVTOL
-		}
+		initializeVehicles(numVehicles);
 
-		//create #chargers 
-		for (int i = 0; i < numChargers; i++) {
-			chargers.emplace_back();					//creates an instance of a charger OBJ and adds it to chargers
-		}
+		initializeChargers(numChargers);
 		simulationTime = SimulationTime;
 		timeStep = ClockSpeed;
 	}
 
-	void run() {
-		double TimeElapsed = timeStep;
-		int debugCounter = 0;
-		int debugFaultCounter = 0;
-
-		while (TimeElapsed <= simulationTime) {			//Emulates passing of time
-			//debug
-			//std::cout << "time elapsed value: " << TimeElapsed  << "  floored value of time elapsed" << static_cast<int>(TimeElapsed) << "\n";
-			// 
-			//flight phase	of the simulation cycle
-			for (auto& vehicle : vehicles) {
-				if (vehicle->getBatteryLevel() > 0) {
-					//debug
-					//cout << vehicle->getBatteryLevel() << " ";
-					if (vehicle->getIsIdle()) {							//check if the aircraft was already in flight or not, if not,last charge cycle duration is recorded
-						vehicle->setIdleStatus(false);
-						double TimeDelta = TimeElapsed - vehicle->getStartIdleTime();		//when we get in this if statement at the very beginning of the simulation we end up with a negative TimeDelta, which we don't want to include in our data
-						if (TimeDelta > 0) {
-							totalIdleTimePerCompany[vehicle->getCompanyName()] += (TimeElapsed - vehicle->getStartIdleTime());	//last charge cycle duration is recorded
-						}
-						vehicle->resetStartIdleTime();
-						numberOfFlightsPerCompany[vehicle->getCompanyName()]++;				//since it's the start of a new flight, the number of flights is increased
-					}
-					double distance = vehicle->fly(timeStep);
-					totalFlightTime[vehicle->getCompanyName()] += timeStep;			//update flight time per company
-					totalDistanceTraveled[vehicle->getCompanyName()] += distance;	//update flight distance epr company
-
-					//compute passenger miles
-					totalPassengerMiles[vehicle->getCompanyName()] += distance * vehicle->getPassengerCount();
-
-					//check if a fault has occurred every hour
-					if ((std::abs(TimeElapsed - std::floor(TimeElapsed)) < EPSILON)
-						&& TimeElapsed > 0) {											//by checking if the time elapsed is equal to itself
-						if (vehicle->checkForFault()) {									//floored to the closest whole number, we make sure it checks
-							totalFaults[vehicle->getCompanyName()] += 1;				//for fault every hour and not every time step
-						}
-						debugFaultCounter++;
-					}
-					vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
-					//debug
-					//cout << distance * vehicle->getEnergyUse() << " ";
-				}else {	
-					if (!vehicle->getIsCharging()) {
-						//add the current vehicle to the charging queue
-						//cout << "vehicle is now in charging queue " << vehicle->getCompanyName() << " at time " << TimeElapsed << "\n";
-						numberOfChargeCyclesPerCompany[vehicle->getCompanyName()]++;
-						vehicle->setIdleStatus(1);					//as the vehicle isn't flying is now considered idle
-						vehicle->updateStartIdleTime(TimeElapsed);	//update the time the vehicle starts the charging cycle
-						vehicle->setChargingStatus(1);				//as the vehicle joins the charging queue it's status changes to Charging
-						chargeQueue.push(vehicle.get());
-					}
-				}
-			}
-			//charging phase of the simulation cycle
-			for (auto& charger : chargers) {						
-				if (charger.isFree() && !chargeQueue.empty()) {		//for each charger it's checked if it's free, if so any vehicle in charging queue is assigned to it
-					Vehicle* EVTOL = chargeQueue.front();			//retrieve the first vehicle in queue (FIFO style queue)
-					chargeQueue.pop();								//the retrieved vehicle is eliminated from queue
-					charger.startCharging(EVTOL);					//vehicle status is updated
-				}
-				else charger.update(timeStep, TimeElapsed);			//any charger that is already busy is updated
-			}
-
-			TimeElapsed += timeStep;								//Simulation timer is increased
-			debugCounter += 1;
+	//create #numVehicles EVTOLS at random 
+	void initializeVehicles(int numVehicles) {
+		for (int i = 0; i < numVehicles; i++) {
+			std::string company = companyNames[rand() % companyNames.size()];		//a company name is selected at random from the list of possible companies
+			vehicles.push_back(eVtol_Factory::createVehicle(company));				//add to vehicles an instance of the selected company's EVTOL
 		}
-		//debug
-		/*for (auto& vehicle : vehicles) {
-			cout << vehicle->getCompanyName() << " \n";
-		}*/
-		//debug
-		//std::cout << "number of times the loop was executed: " << debugCounter << "\n";
-		//std::cout << "number of times we checked for faults: " << debugFaultCounter << "\n";
-		
+	}
 
+	//create #chargers
+	void initializeChargers(int numChargers) { 
+		for (int i = 0; i < numChargers; i++) {
+			chargers.emplace_back();					//creates an instance of a charger OBJ and adds it to chargers
+		}
+	}
+
+	//flight phase logical handler
+	void flightPhase(double TimeElapsed) {
+		for (auto& vehicle : vehicles) {
+			if (vehicle->getBatteryLevel() > 0) {
+				//debug
+				//cout << vehicle->getBatteryLevel() << " ";
+				handleActiveFlight(vehicle, TimeElapsed);
+			}
+			else {
+				queueForCharging(vehicle, TimeElapsed);
+			}
+		}
+	}
+
+	//handles all active flight operations
+	void handleActiveFlight(std::unique_ptr<Vehicle>& vehicle, double TimeElapsed) {
+		if (vehicle->getIsIdle()) {							//check if the aircraft was already in flight or not, if not,last charge cycle duration is recorded
+			vehicle->setIdleStatus(false);
+			double TimeDelta = TimeElapsed - vehicle->getStartIdleTime();		//when we get in this if statement at the very beginning of the simulation we end up with a negative TimeDelta, which we don't want to include in our data
+			if (TimeDelta > 0) {
+				totalIdleTimePerCompany[vehicle->getCompanyName()] += (TimeElapsed - vehicle->getStartIdleTime());	//last charge cycle duration is recorded
+			}
+			vehicle->resetStartIdleTime();
+			numberOfFlightsPerCompany[vehicle->getCompanyName()]++;				//since it's the start of a new flight, the number of flights is increased
+		}
+		double distance = vehicle->fly(timeStep);
+		totalFlightTime[vehicle->getCompanyName()] += timeStep;			//update flight time per company
+		totalDistanceTraveled[vehicle->getCompanyName()] += distance;	//update flight distance epr company
+
+		//compute passenger miles
+		totalPassengerMiles[vehicle->getCompanyName()] += distance * vehicle->getPassengerCount();
+
+		//check if a fault has occurred every hour
+		if ((std::abs(TimeElapsed - std::floor(TimeElapsed)) < EPSILON)
+			&& TimeElapsed > 0) {											//by checking if the time elapsed is equal to itself
+			if (vehicle->checkForFault()) {									//floored to the closest whole number, we make sure it checks
+				totalFaults[vehicle->getCompanyName()] += 1;				//for fault every hour and not every time step
+			}
+		}
+		vehicle->updateBatteryLevel(distance * vehicle->getEnergyUse());
+		//debug
+		//cout << distance * vehicle->getEnergyUse() << " ";
+	}
+
+	//handles the operations regarding the charging queue management
+	void queueForCharging(std::unique_ptr<Vehicle>& vehicle, double TimeElapsed) {
+		if (!vehicle->getIsCharging()) {
+			//add the current vehicle to the charging queue
+			//cout << "vehicle is now in charging queue " << vehicle->getCompanyName() << " at time " << TimeElapsed << "\n";
+			numberOfChargeCyclesPerCompany[vehicle->getCompanyName()]++;
+			vehicle->setIdleStatus(1);					//as the vehicle isn't flying is now considered idle
+			vehicle->updateStartIdleTime(TimeElapsed);	//update the time the vehicle starts the charging cycle
+			vehicle->setChargingStatus(1);				//as the vehicle joins the charging queue it's status changes to Charging
+			chargeQueue.push(vehicle.get());
+		}
+	}
+
+	//charging phase handler
+	void chargingPhase(double TimeElapsed) {
+		for (auto& charger : chargers) {
+			if (charger.isFree() && !chargeQueue.empty()) {		//for each charger it's checked if it's free, if so any vehicle in charging queue is assigned to it
+				Vehicle* EVTOL = chargeQueue.front();			//retrieve the first vehicle in queue (FIFO style queue)
+				chargeQueue.pop();								//the retrieved vehicle is eliminated from queue
+				charger.startCharging(EVTOL);					//vehicle status is updated
+			}
+			else charger.update(timeStep, TimeElapsed);			//any charger that is already busy is updated
+		}
+	}
+
+	//finalize simulation: ensures all charging vehicles's times are logged
+	void finalizeSimulation(double TimeElapsed) {
 		//check if there was any charging  vehicle at the time the simulation ends, if so, update the total idle times
 		for (auto& charger : chargers) {
 			if (!charger.isFree()) {
@@ -142,11 +146,35 @@ public:
 		}
 
 		//check if there was any vehicle in queue waiting to be charged at the time the simulation ends, if so, update the total idle times
-		while(!chargeQueue.empty()) {
+		while (!chargeQueue.empty()) {
 			Vehicle* item = chargeQueue.front();
 			chargeQueue.pop();
 			totalIdleTimePerCompany[item->getCompanyName()] += (TimeElapsed - item->getStartIdleTime());
 		}
+	}
+
+	void run() {
+		double TimeElapsed = timeStep;					//Time elapsed is the main clock variable of the function, it keeps track of the passing of time
+
+		while (TimeElapsed <= simulationTime) {			//Emulates passing of time
+			//debug
+			//std::cout << "time elapsed value: " << TimeElapsed  << "  floored value of time elapsed" << static_cast<int>(TimeElapsed) << "\n";
+			// 
+			//flight phase	of the simulation cycle
+			flightPhase(TimeElapsed);
+			//charging phase of the simulation cycle
+			chargingPhase(TimeElapsed);
+
+			TimeElapsed += timeStep;								//Simulation timer is increased
+		}
+		//debug
+		/*for (auto& vehicle : vehicles) {
+			cout << vehicle->getCompanyName() << " \n";
+		}*/
+
+		//ensures all events are logged correctly 
+		finalizeSimulation(TimeElapsed);
+
 	}
 
 	//function to log all of the simulation statistics
