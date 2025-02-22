@@ -195,6 +195,9 @@ public:
 			NumberOfVehicles[vehicle->getCompanyName()]++;
 		}
 
+		// Force decimal representation
+		std::cout << std::fixed << std::setprecision(2);
+
 		//iterate through one map (assuming all maps have the same keys)
 		for (const auto& [company, flightTime] : totalFlightTime) {
 			std::cout << std::setw(10) << company
