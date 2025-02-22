@@ -9,12 +9,14 @@
 #include <map>
 #include <chrono>
 #include <cmath>
+#include <cassert>
 #include "eVtol_Factory.h"
 #include "charger.h"
-const double EPSILON = 1e-9;
+const double EPSILON = 1e-9;			//used for comparing doubles (delta difference that is considered acceptable when using == )
 
 using namespace std;
 
+//class that runs the actual simulation 
 class Simulation {
 private:
 
@@ -69,7 +71,7 @@ public:
 
 	//flight phase logical handler
 	void flightPhase(double TimeElapsed) {
-		for (auto& vehicle : vehicles) {
+		for (auto& vehicle : vehicles) {				//loops over all the active vehicles
 			if (vehicle->getBatteryLevel() > 0) {
 				//debug
 				//cout << vehicle->getBatteryLevel() << " ";
@@ -152,7 +154,7 @@ public:
 			totalIdleTimePerCompany[item->getCompanyName()] += (TimeElapsed - item->getStartIdleTime());
 		}
 	}
-
+	//main function to run the simulation
 	void run() {
 		double TimeElapsed = timeStep;					//Time elapsed is the main clock variable of the function, it keeps track of the passing of time
 
@@ -216,7 +218,38 @@ public:
 };
 
 int main()
-{
+{	//testing
+	//Vehicle class
+	Vehicle	aircraft = Vehicle("Joby", 200, 150, 0.5, 0.8, 5, 0.01);
+	assert(aircraft.getCompanyName() == "Joby");
+	assert(aircraft.getBatteryLevel() == 150);
+	assert(aircraft.getChargeTime() == 0.5);
+	assert(aircraft.getCruiseSpeed() == 200);
+	assert(aircraft.getEnergyUse() == 0.8);
+	assert(aircraft.getIsCharging() == false);
+	assert(aircraft.getPassengerCount() == 5);
+
+	aircraft.~Vehicle();
+	//Factory and Alpha classes
+	eVtol_Factory factory = eVtol_Factory();
+	std::unique_ptr<Vehicle> alpha =  factory.createVehicle("Alpha");
+	assert(alpha->getCompanyName() == "Alpha");
+	assert(alpha->getBatteryLevel() == 320);
+	assert(alpha->getChargeTime() == 0.6);
+	assert(alpha->getCruiseSpeed() == 120);
+	assert(alpha->getEnergyUse() == 1.6);
+	assert(alpha->getIsCharging() == false);
+	assert(alpha->getPassengerCount() == 4);
+	assert(alpha->getIsIdle() == true);
+
+	//Charger class
+	Charger	TeslaCharger = Charger();
+	assert(TeslaCharger.getCurrentVehicle() == nullptr);
+	assert(TeslaCharger.getTotalChargingTime() == 0);
+	TeslaCharger.startCharging(&aircraft);
+	assert(TeslaCharger.getCurrentVehicle() == &aircraft);
+
+	//Simulation class
 	auto simulation = Simulation(20, 3, 0.01, 3);	//initialize simulation instance 20 vehicles, 3 chargers, 0.01 time increments, 3 hours duration
 	simulation.run();
 	simulation.recordSimulationInfo();
