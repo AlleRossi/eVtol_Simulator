@@ -180,10 +180,10 @@ public:
 	//function to log all of the simulation statistics
 	void recordSimulationInfo() {
 		std::cout << std::setw(10) << "Company"
-			<< std::setw(15) << "Avg Flight"
+			<< std::setw(15) << "Avg FlightT"
 			<< std::setw(15) << "Avg Distance"
-			<< std::setw(15) << "Avg Charge"
-			<< std::setw(10) << "Faults"
+			<< std::setw(15) << "Avg ChargeT"
+			<< std::setw(10) << "# Faults"
 			<< std::setw(20) << "Passenger Miles"
 			<< std::setw(15) << "# Vehicles"
 			<< std::setw(10) << "# Flights"
@@ -214,7 +214,7 @@ public:
 
 int main()
 {
-	auto simulation = Simulation(20, 3, 0.01, 3);
+	auto simulation = Simulation(20, 3, 0.01, 3);	//initialize simulation instance 20 vehicles, 3 chargers, 0.01 time increments, 3 hours duration
 	simulation.run();
 	simulation.recordSimulationInfo();
 
